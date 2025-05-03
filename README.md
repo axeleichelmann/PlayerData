@@ -14,9 +14,9 @@ The dashboard contains the following sections:
 
 ## Repository Breakdown
 The key files in this repository are as follows:
-* 'Data Scientist - Technical Task.pdf' - contains the task description
-* 'match_data.csv' - CSV file containing GPS tracking data
-* 'EDA.ipynb' - Python notebook containing code and findings of Exploratory Data Analysis phase
-* 'utils.py' - Python script containing functions used for data procesing, leaderboard generation, and generation of various other elements used in the insights dashboard
-* 'main.py' - Python script containing code used to generate streamlit dashboard
-* 'requirements.txt' - File containing required packages & libraries used throughout this task to create and run dashboard locally
+* `Data Scientist - Technical Task.pdf` - contains the task description
+* `match_data.csv` - CSV file containing GPS tracking data
+* `EDA.ipynb` - Python notebook containing code and findings of Exploratory Data Analysis phase
+* `utils.py` - Python script containing functions used for data procesing, leaderboard generation, and generation of various other elements used in the insights dashboard
+* `main.py` - Python script containing code used to generate streamlit dashboard
+* `requirements.txt` - File containing required packages & libraries used throughout this task to create and run dashboard locally
