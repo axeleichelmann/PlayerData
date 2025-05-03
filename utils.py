@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from mplsoccer.pitch import Pitch
+import streamlit as st
 
 from typing import Tuple
 
@@ -48,37 +49,46 @@ def removeOffPitch(x_max : float, x_min : float, y_max : float, y_min : float,
 #########  -----------    Leaderboard Metric Calculation Functions   -----------  #########
 
 # Define function to create total distance covered rankings
+@st.cache_data
 def rank_distance_covered(df : pd.DataFrame, top_k : int=10) -> pd.Series:
     """Calculate the player rankings based on total distance covered"""
 
-    df['dist'] = df['adjusted_speed'] * 0.1
-    df_agg = df.groupby('player_id').aggregate({'dist':'sum'}).sort_values(by='dist',ascending=False)
+    df['dist'] = round(df['adjusted_speed'] * 0.1, 2)
+    df_agg = df.groupby('player_id', as_index=False).aggregate({'dist':'sum'})\
+                                                    .sort_values(by='dist',ascending=False).reset_index(drop=True)
+    df_agg['dist'] = df_agg['dist'].apply(lambda x : f"{x:.2f}")
     
-    df_rank = pd.Series(data=[f"{player_id}\nDist={df_agg.loc[player_id].dist:.2f} m" for player_id in df_agg.index.tolist()])
+    df_agg.columns = ['Player ID', 'Total Distance Covered (m)']
 
-    return df_rank.loc[:top_k-1]
+    return df_agg.loc[:top_k-1]
 
 # Define function to create zone 5 distance covered rankings
+@st.cache_data
 def rank_z5_distance_covered(df : pd.DataFrame, top_k : int=10) -> pd.Series:
     """Calculate the player rankings based on distance covered in Zone 5 speed"""
     df_z5 = df[(df.adjusted_speed > 5.5) & (df.adjusted_speed < 6.972)]
 
-    df_z5['dist'] = df_z5['adjusted_speed'] * 0.1
-    df_agg = df_z5.groupby('player_id').aggregate({'dist':'sum'}).sort_values(by='dist',ascending=False)
+    df_z5['dist'] = round(df_z5['adjusted_speed'] * 0.1, 2)
+    df_agg = df_z5.groupby('player_id', as_index=False).aggregate({'dist':'sum'})\
+                                                       .sort_values(by='dist',ascending=False).reset_index(drop=True)
+    df_agg['dist'] = df_agg['dist'].apply(lambda x : f"{x:.2f}")
     
-    df_rank = pd.Series(data=[f"{player_id}\nDist={df_agg.loc[player_id].dist:.2f} m" for player_id in df_agg.index.tolist()])
+    df_agg.columns = ['Player ID', 'Distance Covered in Speed Zone 5 (m)']
 
-    return df_rank.loc[:top_k-1]
+    return df_agg.loc[:top_k-1]
 
 # Define function to create top speed rankings
+@st.cache_data
 def rank_top_speed(df : pd.DataFrame, top_k : int=10) -> pd.Series:
     """Calculate the player rankings based on top speed"""
 
-    df_agg = df.groupby('player_id').aggregate({'adjusted_speed':'max'}).sort_values(by='adjusted_speed',ascending=False)
+    df_agg = df.groupby('player_id', as_index=False).aggregate({'adjusted_speed':'max'})\
+                                                    .sort_values(by='adjusted_speed',ascending=False).reset_index(drop=True)
+    df_agg['adjusted_speed'] = df_agg['adjusted_speed'].apply(lambda x : f"{x:.2f}")
     
-    df_rank = pd.Series(data=[f"{player_id}\nSpeed={df_agg.loc[player_id].adjusted_speed:.2f} m/s" for player_id in df_agg.index.tolist()])
+    df_agg.columns = ['Player ID', 'Top Speed (m/s)']
 
-    return df_rank.loc[:top_k-1]
+    return df_agg.loc[:top_k-1]
 
 
 ##### ------------------ Heatmap Creation Functions -------------  #######
@@ -121,6 +131,7 @@ def playerZoneDistribution(playerID : str, df : pd.DataFrame) -> Tuple:
 
 
 ######## -------- Ball Possesion ------- #####
+@st.cache_data
 def getPossesion(df_ball : pd.DataFrame, df_players : pd.DataFrame) -> pd.DataFrame:
     """Create new column in df_ball dataframe describing what player is in possesion of ball (based on proximity)"""
 
@@ -161,13 +172,7 @@ if __name__=='__main__':
     df_players = filterSpeed(window_size=0.3, df=df_players)
     df_players = removeStationary(min_speed=0.03, df=df_players)
 
-    df_ball = df[df.player_id == 'ball']
-    df_ball = filterSpeed(window_size=0.3, df=df_ball)  # Apply window MA filter to speed data
-    df_ball = removeStationary(min_speed=0.03, df=df_ball)   # Remove data points where speed is < 0.03m/s
-    df_ball = removeOffPitch(x_max=52.5, x_min=-52.5, y_max=34, y_min=-34, df=df_ball)    # Remove out of pitch data points
-
-    df_poss = getPossesion(df_ball, df_players)
-    print(df_poss.possesor.value_counts(normalize=True))
+    print(rank_distance_covered(df_players))
 
 
     # Test speed filtering

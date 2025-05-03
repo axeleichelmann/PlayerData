@@ -37,16 +37,20 @@ with st.container():
     st.write("---")
     st.header("Performance Leaderboard")
 
-    top_k = st.selectbox("Show top ", np.arange(1,11), index=4)
+    top_k = st.selectbox("Show top ", np.arange(1,17), index=9)
+    metric = st.selectbox("Select Leaderboard Metric:", ['Total Distance Covered', 'Speed Zone 5 Distance Covered', 'Top Speed'])
 
     # Create athlete ranking leaderboard
     rank_dist = rank_distance_covered(df_players, top_k)
     rank_distZ5 = rank_z5_distance_covered(df_players, top_k)
     rank_speed = rank_top_speed(df_players, top_k)
 
-    leaderboard = pd.DataFrame({'Total Distance Covered' : rank_dist,
-                                'Distance in Speed Zone 5' : rank_distZ5,
-                                'Top Speed' : rank_speed}).set_index(np.arange(1,top_k+1))
+    if metric == 'Total Distance Covered':
+        leaderboard = rank_dist.set_index(np.arange(1,top_k+1))
+    elif metric == 'Speed Zone 5 Distance Covered':
+        leaderboard = rank_distZ5.set_index(np.arange(1,top_k+1))
+    else:
+        leaderboard = rank_speed.set_index(np.arange(1,top_k+1))
 
     st.table(leaderboard)
 
@@ -72,7 +76,7 @@ with st.container():
 
     st.pyplot(fig)
 
-    st.subheader("Ball Posession Leaderboard")
+    st.subheader("Ball Possession Leaderboard")
     df_possesion = getPossesion(df_ball, df_players)
     possesion_leaderboard = df_possesion.possesor.value_counts(normalize=True).sort_values(ascending=False)\
                                                 .reset_index(drop=False)\
@@ -80,4 +84,4 @@ with st.container():
                             
     possesion_leaderboard['proportion'] = possesion_leaderboard['proportion'].apply(lambda x : f"{x*100:.2f}%")
     
-    st.table(possesion_leaderboard.rename(columns={'possesor':'Player ID', 'proportion' : 'Possesion'}))
+    st.table(possesion_leaderboard.rename(columns={'possesor':'Player ID', 'proportion' : 'Possession'}))
