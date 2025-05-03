@@ -8,15 +8,15 @@ For this task I created an interactive data insights dashboard using streamlit w
 The dashboard contains the following sections:
 1. Performance Leaderboard - This sections displays a leaderboard showing the rankings of players based on three key metrics: 'Total Distance Covered', 'Distance Covered in Speed Zone 5', 'Top Speed'. The leaderboard shows the players ID along with their achieved metric value.
 
-![leaderboard](assets/leaderboard.png)
+<img src="assets/leaderboard.png" alt="Alt Text" width="600" height="500">
 
 2. Player Location Data - This section displays a heatmap showing the locational distribution of each player. A dropdown menu allows you to select a PlayerID for whom you wish to see a heatmap. There is also a breakdown of the percentage of time spent by the player in each third of the pitch.
 
-![player heatmap](assets/player-heatmap.png)
+<img src="assets/player-heatmap.png" alt="Alt Text" width="600" height="500">
 
 3. Ball Location Data - This section displays a heatmap showing the locational distribution of the ball, along with a leaderboard showing the percentage of time spent in possesion of the ball by each player.
 
-![ball heatmap](assets/ball-heatmap.png)
+<img src="assets/ball-heatmap.png" alt="Alt Text" width="600" height="500">
 
 ## Repository Breakdown
 The key files in this repository are as follows:
