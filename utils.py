@@ -135,26 +135,21 @@ def playerZoneDistribution(playerID : str, df : pd.DataFrame) -> Tuple:
 def getPossesion(df_ball : pd.DataFrame, df_players : pd.DataFrame) -> pd.DataFrame:
     """Create new column in df_ball dataframe describing what player is in possesion of ball (based on proximity)"""
 
-    possesion = []
+    # Merge ball and player data on time
+    merged = df_players.merge(df_ball[['time_s', 'x', 'y']], on='time_s', suffixes=('_player', '_ball'))
 
-    for i, time in enumerate(df_ball.time_s.values):
+    # Compute distance between each player and the ball
+    merged['dist'] = np.sqrt((merged['x_player'] - merged['x_ball'])**2 + 
+                             (merged['y_player'] - merged['y_ball'])**2)
 
-        ball_x, ball_y = df_ball[df_ball.time_s == time]['x'].values[0], df_ball[df_ball.time_s == time]['y'].values[0]
-        players = df_players[df_players.time_s == time]
+    # Find the closest player to the ball at each time
+    closest = merged.loc[merged.groupby('time_s')['dist'].idxmin(), ['time_s', 'player_id']]
 
-        possesionID = None
-        min_dist = 100
+    # Rename for clarity
+    closest.rename(columns={'player_id': 'possessor'}, inplace=True)
 
-        for playerID in players.player_id.unique():
-            player_x, player_y = players[players.player_id == playerID].x.values[0], players[players.player_id == playerID].y.values[0]
-            dist_from_ball = ((player_x - ball_x)**2 + (player_y - ball_y)**2)**(1/2)
-            if dist_from_ball < min_dist:
-                min_dist = dist_from_ball
-                possesionID = playerID
-        
-        possesion.append(possesionID)
-    
-    df_ball['possesor'] = possesion
+    # Merge back with ball data to assign possessor
+    df_ball = df_ball.merge(closest, on='time_s', how='left')
 
     return df_ball
 
@@ -172,7 +167,11 @@ if __name__=='__main__':
     df_players = filterSpeed(window_size=0.3, df=df_players)
     df_players = removeStationary(min_speed=0.03, df=df_players)
 
-    print(rank_distance_covered(df_players))
+    df_ball = df[df.player_id == 'ball']
+    df_ball = filterSpeed(window_size=0.3, df=df_ball)
+    df_ball = removeStationary(min_speed=0.03, df=df_ball)
+
+    print(getPossesion(df_ball, df_players))
 
 
     # Test speed filtering
