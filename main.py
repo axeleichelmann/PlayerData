@@ -78,10 +78,10 @@ with st.container():
 
     st.subheader("Ball Possession Leaderboard")
     df_possesion = getPossesion(df_ball, df_players)
-    possesion_leaderboard = df_possesion.possesor.value_counts(normalize=True).sort_values(ascending=False)\
+    possesion_leaderboard = df_possesion.possessor.value_counts(normalize=True).sort_values(ascending=False)\
                                                 .reset_index(drop=False)\
-                                                .set_index(np.arange(1,df_possesion.possesor.nunique()+1))
+                                                .set_index(np.arange(1,df_possesion.possessor.nunique()+1))
                             
     possesion_leaderboard['proportion'] = possesion_leaderboard['proportion'].apply(lambda x : f"{x*100:.2f}%")
     
-    st.table(possesion_leaderboard.rename(columns={'possesor':'Player ID', 'proportion' : 'Possession'}))
+    st.table(possesion_leaderboard.rename(columns={'possessor':'Player ID', 'proportion' : 'Possession'}))
